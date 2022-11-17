@@ -4,6 +4,7 @@ from .models import Post
 from .filters import PostFilter
 from .forms import PostForm
 from django.urls import reverse_lazy
+from django.http import Http404
 
 class PostList(ListView):
     model = Post
@@ -73,31 +74,42 @@ class ArticleCreate(CreateView):
 class NewsUpdate(UpdateView):
     form_class = PostForm
     model = Post
-#    def get_initial(self):
-#        initial = super(NewsUpdate, self).get_initial()
-#        if initial['type'] != Post.news:
-#            raise TypeError('Нет такой новости!')
-#        return initial
+    def get_object(self, queryset=None):
+        initial = super(NewsUpdate, self).get_object(queryset)
+        if initial.type != Post.news:
+            raise Http404('Нет такой новости!')
+        return initial
     template_name = 'posts_edit.html'
-    def form_valid(self, form):
-        post = form.save(commit=False)
-        if post.type != Post.news:
-            raise TypeError('Нет такой новости!')
-        return super().form_valid(form)
+
 
 # Добавляем представление для изменения
 class ArticleUpdate(UpdateView):
     form_class = PostForm
     model = Post
+    def get_object(self, queryset=None):
+        initial = super(ArticleUpdate, self).get_object(queryset)
+        if initial.type != Post.article:
+            raise Http404('Нет такой новости!')
+        return initial
     template_name = 'posts_edit.html'
 
-    def form_valid(self, form):
-        post = form.save(commit=False)
-        if post.type != Post.article:
-            raise TypeError('Нет такой статьи!')
-        return super().form_valid(form)
 
 class NewsDelete(DeleteView):
     model = Post
+    def get_object(self, queryset=None):
+        initial = super(NewsDelete, self).get_object(queryset)
+        if initial.type != Post.news:
+            raise Http404('Нет такой новости!')
+        return initial
+    template_name = 'posts_delete.html'
+    success_url = reverse_lazy('List')
+
+class ArticleDelete(DeleteView):
+    model = Post
+    def get_object(self, queryset=None):
+        initial = super(ArticleDelete, self).get_object(queryset)
+        if initial.type != Post.article:
+            raise Http404('Нет такой новости!')
+        return initial
     template_name = 'posts_delete.html'
     success_url = reverse_lazy('List')
