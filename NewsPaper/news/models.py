@@ -29,9 +29,15 @@ class Author(models.Model):
                         + art_com_rate['rate__sum'] - extra['rate__sum'])
             obj.save()
 
+    def __str__(self):
+        return self.user.username
+
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
 
 class Post(models.Model):
     article = 'A'
